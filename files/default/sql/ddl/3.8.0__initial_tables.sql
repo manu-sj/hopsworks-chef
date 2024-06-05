@@ -1424,6 +1424,7 @@ CREATE TABLE `training_dataset_feature` (
                                             `inference_helper_column` tinyint(1) NOT NULL DEFAULT '0',
                                             `training_helper_column` tinyint(1) NOT NULL DEFAULT '0',
                                             `feature_view_id` INT(11) NULL,
+                                            `on_demand_feature` BOOLEAN NOT NULL,
                                             PRIMARY KEY (`id`),
                                             KEY `td_key` (`training_dataset`),
                                             KEY `fg_key` (`feature_group`),
@@ -2092,9 +2093,25 @@ CREATE TABLE IF NOT EXISTS `feature_view_transformation_function` ( -- mapping t
     `transformation_function_id` int(11) NOT NULL,
     `feature_view_id` int(11) NOT NULL,
     `features` VARCHAR(5000) NOT NULL,
+    `dropped_features` VARCHAR(5000) NOT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `fvtf_fvi_fk` FOREIGN KEY (`feature_view_id`) REFERENCES `feature_view` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
     CONSTRAINT `fvtf_tfi_fk` FOREIGN KEY (`transformation_function_id`) REFERENCES `transformation_function` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = ndbcluster DEFAULT CHARSET = latin1 COLLATE = latin1_general_cs;
+
+--
+-- Table structure for table `feature_group_transformation_functions`
+--
+
+CREATE TABLE IF NOT EXISTS `feature_group_transformation_functions` ( -- mapping transformation functions in feature view with required features and actual transformation function.
+    `id`                                INT(11)         NOT NULL AUTO_INCREMENT,
+    `transformation_function_id` int(11) NOT NULL,
+    `feature_group_id` int(11) NOT NULL,
+    `features` VARCHAR(5000) NOT NULL,
+    `dropped_features` VARCHAR(5000) NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `fgtf_fgi_fk` FOREIGN KEY (`feature_group_id`) REFERENCES `feature_group` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT `fgtf_tfi_fk` FOREIGN KEY (`transformation_function_id`) REFERENCES `transformation_function` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = ndbcluster DEFAULT CHARSET = latin1 COLLATE = latin1_general_cs;
 
 CREATE TABLE IF NOT EXISTS `hopsworks`.`training_dataset_filter` (
